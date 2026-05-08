@@ -20,9 +20,14 @@ DAILY_LIMIT = 10
 CSS = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap');
-html, body, [class*="css"], .stMarkdown, .stTextInput, .stTextArea, .stRadio,
-.stButton, .stCaption, .stHeader, .stTitle, h1, h2, h3, h4, h5, h6, p, div, span, button, input, textarea {
+html, body, .stMarkdown, .stTextInput, .stTextArea, .stRadio,
+.stButton, .stCaption, h1, h2, h3, h4, h5, h6, p, button, input, textarea {
   font-family: 'M PLUS Rounded 1c', 'Hiragino Sans', 'Yu Gothic', sans-serif !important;
+}
+/* Material Icons はそのまま(アイコンフォントなので上書きしない) */
+.material-icons, .material-icons-outlined, [class*="MaterialIcon"],
+span[class*="icon"], i.material-icons, i[class*="material-icons"] {
+  font-family: 'Material Icons', 'Material Symbols Outlined', sans-serif !important;
 }
 .keeper-msg {
   background: linear-gradient(135deg, rgba(58,80,40,0.18), rgba(120,140,90,0.10));
