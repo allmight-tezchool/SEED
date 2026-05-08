@@ -20,20 +20,43 @@ DAILY_LIMIT = 10
 CSS = """
 <style>
 /* Streamlit Cloud のプラットフォーム要素を非表示 */
-header[data-testid="stHeader"] { display: none !important; }
-[data-testid="stToolbar"] { display: none !important; }
-[data-testid="stDecoration"] { display: none !important; }
-[data-testid="stStatusWidget"] { display: none !important; }
-.stDeployButton { display: none !important; }
-.viewerBadge_container__1QSob { display: none !important; }
-.viewerBadge_link__1S137 { display: none !important; }
-[data-testid="manage-app-button"] { display: none !important; }
-button[kind="manageAppButton"] { display: none !important; }
-/* 右下のManage appフローティングボタン */
-.styles_terminalButton__JBj5T { display: none !important; }
-[class*="viewerBadge"] { display: none !important; }
-[class*="ManageApp"] { display: none !important; }
-[class*="manage-app"] { display: none !important; }
+header[data-testid="stHeader"],
+[data-testid="stToolbar"],
+[data-testid="stDecoration"],
+[data-testid="stStatusWidget"],
+.stDeployButton,
+[data-testid="manage-app-button"],
+button[kind="manageAppButton"],
+[class*="viewerBadge"],
+[class*="ManageApp"],
+[class*="manage-app"],
+[class*="viewerCard"],
+[class*="StyledWrapper"],
+.viewerBadge_container__1QSob,
+.viewerBadge_link__1S137,
+.styles_terminalButton__JBj5T {
+  display: none !important;
+}
+
+/* 右下のManage appを完全に隠す(全方位作戦)*/
+iframe[title="streamlitApp"] ~ div,
+[data-testid="stApp"] > div:last-child,
+body > div:not([data-testid="stApp"]):not(.stApp) {
+  display: none !important;
+}
+/* 右下に固定表示されるすべてのフローティング要素 */
+body > div[style*="position: fixed"],
+body > div[style*="position:fixed"],
+#root > div[style*="position: fixed"] {
+  display: none !important;
+}
+/* manage-appのリンクとそのコンテナ */
+a[href*="manage-app"],
+a[href*="streamlitcloud"],
+a[href*="share.streamlit.io"] {
+  display: none !important;
+}
+
 /* 上部余白を詰める(ヘッダー消した分) */
 .main .block-container { padding-top: 1rem !important; }
 
@@ -111,6 +134,43 @@ span[class*="icon"], i.material-icons, i[class*="material-icons"] {
 </style>
 """
 st.markdown(CSS, unsafe_allow_html=True)
+
+# Manage appボタン等をJavaScriptで強制的に削除(CSSで消せない場合の保険)
+HIDE_JS = """
+<script>
+(function hideStreamlitUI() {
+  const selectors = [
+    '[data-testid="manage-app-button"]',
+    'button[kind="manageAppButton"]',
+    '[data-testid="stToolbar"]',
+    '[data-testid="stStatusWidget"]',
+    'header[data-testid="stHeader"]',
+    '.stDeployButton',
+    '[class*="viewerBadge"]',
+    '[class*="ManageApp"]',
+    'a[href*="manage-app"]',
+    'a[href*="share.streamlit.io"]'
+  ];
+  selectors.forEach(sel => {
+    document.querySelectorAll(sel).forEach(el => el.style.display = 'none');
+  });
+}
+)();
+// 動的に追加された場合に備えて、定期的にチェック
+setInterval(() => {
+  const selectors = [
+    '[data-testid="manage-app-button"]',
+    'button[kind="manageAppButton"]',
+    '[class*="ManageApp"]',
+    'a[href*="manage-app"]'
+  ];
+  selectors.forEach(sel => {
+    document.querySelectorAll(sel).forEach(el => el.style.display = 'none');
+  });
+}, 1000);
+</script>
+"""
+st.markdown(HIDE_JS, unsafe_allow_html=True)
 
 # ===== ログイン =====
 user = render_login_screen()
@@ -496,7 +556,6 @@ with st.expander(f"🍂 {total_label}({len(seeds_rows)}本)", expanded=False):
                     show_key = "show_knowledge_" + str(row["id"])
                     if st.toggle("📚 知識展開を読む", key=show_key):
                         st.markdown(row["ai_response"])
-                    # 自分のたねだけ削除可能
                     if seed_user_id == USER_ID:
                         if st.button("🍂 このたねを忘れる", key="del_" + str(row["id"])):
                             db.delete_seed(row["id"], user_id=USER_ID)
