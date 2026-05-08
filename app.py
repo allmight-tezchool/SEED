@@ -38,25 +38,6 @@ button[kind="manageAppButton"],
   display: none !important;
 }
 
-/* 右下のManage appを完全に隠す(全方位作戦)*/
-iframe[title="streamlitApp"] ~ div,
-[data-testid="stApp"] > div:last-child,
-body > div:not([data-testid="stApp"]):not(.stApp) {
-  display: none !important;
-}
-/* 右下に固定表示されるすべてのフローティング要素 */
-body > div[style*="position: fixed"],
-body > div[style*="position:fixed"],
-#root > div[style*="position: fixed"] {
-  display: none !important;
-}
-/* manage-appのリンクとそのコンテナ */
-a[href*="manage-app"],
-a[href*="streamlitcloud"],
-a[href*="share.streamlit.io"] {
-  display: none !important;
-}
-
 /* 上部余白を詰める(ヘッダー消した分) */
 .main .block-container { padding-top: 1rem !important; }
 
@@ -135,42 +116,6 @@ span[class*="icon"], i.material-icons, i[class*="material-icons"] {
 """
 st.markdown(CSS, unsafe_allow_html=True)
 
-# Manage appボタン等をJavaScriptで強制的に削除(CSSで消せない場合の保険)
-HIDE_JS = """
-<script>
-(function hideStreamlitUI() {
-  const selectors = [
-    '[data-testid="manage-app-button"]',
-    'button[kind="manageAppButton"]',
-    '[data-testid="stToolbar"]',
-    '[data-testid="stStatusWidget"]',
-    'header[data-testid="stHeader"]',
-    '.stDeployButton',
-    '[class*="viewerBadge"]',
-    '[class*="ManageApp"]',
-    'a[href*="manage-app"]',
-    'a[href*="share.streamlit.io"]'
-  ];
-  selectors.forEach(sel => {
-    document.querySelectorAll(sel).forEach(el => el.style.display = 'none');
-  });
-}
-)();
-// 動的に追加された場合に備えて、定期的にチェック
-setInterval(() => {
-  const selectors = [
-    '[data-testid="manage-app-button"]',
-    'button[kind="manageAppButton"]',
-    '[class*="ManageApp"]',
-    'a[href*="manage-app"]'
-  ];
-  selectors.forEach(sel => {
-    document.querySelectorAll(sel).forEach(el => el.style.display = 'none');
-  });
-}, 1000);
-</script>
-"""
-st.markdown(HIDE_JS, unsafe_allow_html=True)
 
 # ===== ログイン =====
 user = render_login_screen()
