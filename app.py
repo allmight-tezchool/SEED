@@ -128,15 +128,15 @@ st.markdown(
 # ===== サイドバー: 表示モード切替 =====
 view_mode = st.sidebar.radio(
     "🌲 見る森",
-    ["🌳 自分の森", "🌍 みんなの森"],
+    ["🌒 静寂の森", "🌞 ひらけた森"],
     index=0,
 )
 
 # どのデータを引いてくるか決定
-if view_mode == "🌳 自分の森":
-    # 自分が蒔いた全部(静寂もひらけたも混ざる)
-    seeds_rows = db.list_seeds(limit=300, user_id=USER_ID)
-else:  # 🌍 みんなの森(社内全員のひらけた森)
+if view_mode == "🌒 静寂の森":
+    # 自分の静寂のたねだけ(自分だけ見える)
+    seeds_rows = db.list_seeds(limit=300, user_id=USER_ID, category="personal")
+else:  # 🌞 ひらけた森(社内全員のひらけた森が混ざる)
     seeds_rows = db.list_seeds(limit=300, category="business")
 
 # ===== 森の描画 =====
@@ -157,7 +157,7 @@ st.markdown(forest_svg, unsafe_allow_html=True)
 
 # ===== 木をタップで詳細表示(スマホ向け大きめボタン)=====
 if seeds_for_render:
-    with st.expander(f"🌲 木をタップして詳細を見る({len(seeds_for_render)}本)", expanded=False):
+    with st.expander(f"🌲 木の一覧({len(seeds_for_render)}本)", expanded=False):
         # 新しい順に最大30本までボタン表示(古いものはタイムラインで)
         recent_for_buttons = seeds_for_render[:30]
         # 1行2列で並べる(スマホでも押しやすいサイズ)
@@ -411,8 +411,8 @@ GROUP_LABELS = {
 GROUP_ORDER = ["today", "yesterday", "this_week", "this_month", "older"]
 
 st.divider()
-total_label = {"🌳 自分の森": "自分のたね",
-               "🌍 みんなの森": "みんなのひらけた森のたね"}.get(view_mode, "たね")
+total_label = {"🌒 静寂の森": "静寂の森のたね",
+               "🌞 ひらけた森": "ひらけた森のたね"}.get(view_mode, "たね")
 
 with st.expander(f"🍂 {total_label}({len(seeds_rows)}本)", expanded=False):
     keyword = st.text_input("キーワード検索", "")
