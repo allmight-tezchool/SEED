@@ -1,0 +1,28 @@
+# === 絶対に上げてはいけないファイル ===
+.env
+.env.local
+.env.production
+APIKEY.txt
+*.key
+.streamlit/secrets.toml
+
+# === Pythonキャッシュ ===
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# === DB(個人データ含む) ===
+seed.db
+*.db.broken_*
+seed_recovered.db
+
+# === エディタ/OS ===
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# === バックアップ ===
+backup-before-multiuser/
