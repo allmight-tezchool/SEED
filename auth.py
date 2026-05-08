@@ -13,17 +13,54 @@ def is_production():
     return os.environ.get("STREAMLIT_RUNTIME_ENV") == "cloud" or os.path.exists("/mount/src")
 
 
-def get_allowed_domain():
-    """許可された会社ドメイン(環境変数 ALLOWED_EMAIL_DOMAIN で設定)"""
-    return os.environ.get("ALLOWED_EMAIL_DOMAIN", "").strip().lower()
+def _get_secret_or_env(key, default=""):
+    """Streamlit Secrets → 環境変数の順で値を取得"""
+    try:
+        val = st.secrets.get(key)
+        if val:
+            return val
+    except Exception:
+        pass
+    return os.environ.get(key, default)
+
+
+def get_allowed_domains():
+    """許可された会社ドメイン(複数対応、カンマ区切り)"""
+    raw = _get_secret_or_env("ALLOWED_EMAIL_DOMAIN", "").strip().lower()
+    if not raw:
+        return []
+    # カンマ区切りで複数対応、空白も除去
+    return [d.strip().lstrip("@") for d in raw.split(",") if d.strip()]
+
+
+def get_allowed_emails():
+    """個別に許可された特定のメールアドレス(複数対応、カンマ区切り)"""
+    raw = _get_secret_or_env("ALLOWED_EMAILS", "").strip().lower()
+    if not raw:
+        return []
+    return [e.strip() for e in raw.split(",") if e.strip()]
 
 
 def is_email_allowed(email):
-    """メールアドレスが許可ドメインに属するかチェック"""
-    allowed = get_allowed_domain()
-    if not allowed:
-        return True  # ドメイン制限なしなら全部OK
-    return email.lower().endswith("@" + allowed)
+    """メールアドレスが許可リストに該当するかチェック"""
+    email = email.lower().strip()
+    allowed_domains = get_allowed_domains()
+    allowed_emails = get_allowed_emails()
+
+    # 制限なしなら全部OK
+    if not allowed_domains and not allowed_emails:
+        return True
+
+    # 特定アドレスの個別許可
+    if email in allowed_emails:
+        return True
+
+    # ドメイン許可
+    for domain in allowed_domains:
+        if email.endswith("@" + domain):
+            return True
+
+    return False
 
 
 def get_current_user():
@@ -68,10 +105,17 @@ def render_login_screen():
         return user
 
     if user and user.get("blocked"):
+        domains = get_allowed_domains()
+        emails = get_allowed_emails()
+        allowed_msg = ""
+        if domains:
+            allowed_msg += f"許可ドメイン: {', '.join('@'+d for d in domains)}\n"
+        if emails:
+            allowed_msg += f"許可アドレス: {', '.join(emails)}\n"
         st.error(
             "このメールアドレスではログインできません。\n"
-            f"許可ドメイン: @{get_allowed_domain()}\n"
-            "管理者にお問い合わせください。"
+            + allowed_msg
+            + "管理者にお問い合わせください。"
         )
         if st.button("ログアウト"):
             try:
