@@ -19,6 +19,24 @@ DAILY_LIMIT = 10
 
 CSS = """
 <style>
+/* Streamlit Cloud のプラットフォーム要素を非表示 */
+header[data-testid="stHeader"] { display: none !important; }
+[data-testid="stToolbar"] { display: none !important; }
+[data-testid="stDecoration"] { display: none !important; }
+[data-testid="stStatusWidget"] { display: none !important; }
+.stDeployButton { display: none !important; }
+.viewerBadge_container__1QSob { display: none !important; }
+.viewerBadge_link__1S137 { display: none !important; }
+[data-testid="manage-app-button"] { display: none !important; }
+button[kind="manageAppButton"] { display: none !important; }
+/* 右下のManage appフローティングボタン */
+.styles_terminalButton__JBj5T { display: none !important; }
+[class*="viewerBadge"] { display: none !important; }
+[class*="ManageApp"] { display: none !important; }
+[class*="manage-app"] { display: none !important; }
+/* 上部余白を詰める(ヘッダー消した分) */
+.main .block-container { padding-top: 1rem !important; }
+
 @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap');
 html, body, .stMarkdown, .stTextInput, .stTextArea, .stRadio,
 .stButton, .stCaption, h1, h2, h3, h4, h5, h6, p, button, input, textarea {
