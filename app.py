@@ -19,18 +19,23 @@ DAILY_LIMIT = 10
 
 CSS = """
 <style>
+@import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap');
+html, body, [class*="css"], .stMarkdown, .stTextInput, .stTextArea, .stRadio,
+.stButton, .stCaption, .stHeader, .stTitle, h1, h2, h3, h4, h5, h6, p, div, span, button, input, textarea {
+  font-family: 'M PLUS Rounded 1c', 'Hiragino Sans', 'Yu Gothic', sans-serif !important;
+}
 .keeper-msg {
   background: linear-gradient(135deg, rgba(58,80,40,0.18), rgba(120,140,90,0.10));
   border-left: 3px solid #7a9560;
   padding: 14px 18px; margin: 14px 0 6px 0;
-  border-radius: 8px; font-family: serif;
+  border-radius: 8px; font-family: 'M PLUS Rounded 1c', sans-serif;
   font-size: 1.05rem; line-height: 1.7; color: #d8e2c8;
 }
 .relation-msg {
   background: linear-gradient(135deg, rgba(80,60,30,0.18), rgba(140,110,60,0.10));
   border-left: 3px solid #b18a4a;
   padding: 12px 16px; margin: 10px 0;
-  border-radius: 8px; font-family: serif;
+  border-radius: 8px; font-family: 'M PLUS Rounded 1c', sans-serif;
   font-size: 0.95rem; line-height: 1.65; color: #e6d8b8;
 }
 .knowledge-box {
@@ -52,7 +57,7 @@ CSS = """
 }
 .forest-path-title {
   color: #d8c896; font-size: 0.95rem;
-  margin-bottom: 8px; font-family: serif;
+  margin-bottom: 8px; font-family: 'M PLUS Rounded 1c', sans-serif;
 }
 .forest-path-item {
   color: #ede5cc; line-height: 1.7; margin: 4px 0;
@@ -65,7 +70,7 @@ CSS = """
 }
 .timeline-group {
   color: #a9b598; font-size: 0.95rem;
-  margin: 22px 0 10px 0; font-family: serif;
+  margin: 22px 0 10px 0; font-family: 'M PLUS Rounded 1c', sans-serif;
   border-bottom: 1px solid rgba(140,160,90,0.18);
   padding-bottom: 4px;
 }
@@ -123,18 +128,15 @@ st.markdown(
 # ===== サイドバー: 表示モード切替 =====
 view_mode = st.sidebar.radio(
     "🌲 見る森",
-    ["自分の森(ぜんぶ)", "静寂の森だけ", "ひらけた森だけ", "みんなのひらけた森"],
+    ["🌳 自分の森", "🌍 みんなの森"],
     index=0,
 )
 
 # どのデータを引いてくるか決定
-if view_mode == "自分の森(ぜんぶ)":
+if view_mode == "🌳 自分の森":
+    # 自分が蒔いた全部(静寂もひらけたも混ざる)
     seeds_rows = db.list_seeds(limit=300, user_id=USER_ID)
-elif view_mode == "静寂の森だけ":
-    seeds_rows = db.list_seeds(limit=300, user_id=USER_ID, category="personal")
-elif view_mode == "ひらけた森だけ":
-    seeds_rows = db.list_seeds(limit=300, user_id=USER_ID, category="business")
-else:  # みんなのひらけた森
+else:  # 🌍 みんなの森(社内全員のひらけた森)
     seeds_rows = db.list_seeds(limit=300, category="business")
 
 # ===== 森の描画 =====
@@ -152,6 +154,27 @@ seeds_for_render = [
 
 forest_svg = render_forest(seeds_for_render)
 st.markdown(forest_svg, unsafe_allow_html=True)
+
+# ===== 木をタップで詳細表示(スマホ向け大きめボタン)=====
+if seeds_for_render:
+    with st.expander(f"🌲 木をタップして詳細を見る({len(seeds_for_render)}本)", expanded=False):
+        # 新しい順に最大30本までボタン表示(古いものはタイムラインで)
+        recent_for_buttons = seeds_for_render[:30]
+        # 1行2列で並べる(スマホでも押しやすいサイズ)
+        for i in range(0, len(recent_for_buttons), 2):
+            cols = st.columns(2)
+            for j, col in enumerate(cols):
+                idx = i + j
+                if idx >= len(recent_for_buttons):
+                    break
+                t = recent_for_buttons[idx]
+                tree_label = tree_label_with_emoji(t["tree_type"])
+                excerpt = t["tweet_excerpt"] or "(空のたね)"
+                btn_label = f"{tree_label}  {excerpt}"
+                with col:
+                    if st.button(btn_label, key=f"tree_btn_{t['id']}", use_container_width=True):
+                        st.query_params["seed"] = str(t["id"])
+                        st.rerun()
 
 # session_state
 if "last_seed_result" not in st.session_state:
@@ -388,10 +411,8 @@ GROUP_LABELS = {
 GROUP_ORDER = ["today", "yesterday", "this_week", "this_month", "older"]
 
 st.divider()
-total_label = {"自分の森(ぜんぶ)": "自分のたね",
-               "静寂の森だけ": "静寂の森のたね",
-               "ひらけた森だけ": "自分のひらけた森のたね",
-               "みんなのひらけた森": "みんなのひらけた森のたね"}.get(view_mode, "たね")
+total_label = {"🌳 自分の森": "自分のたね",
+               "🌍 みんなの森": "みんなのひらけた森のたね"}.get(view_mode, "たね")
 
 with st.expander(f"🍂 {total_label}({len(seeds_rows)}本)", expanded=False):
     keyword = st.text_input("キーワード検索", "")
