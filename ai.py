@@ -90,6 +90,7 @@ SYSTEM_PROMPT = (
     "}"
 )
 
+
 def _client():
     # まずStreamlit Secretsを試す(本番Streamlit Cloud用)
     api_key = None
@@ -104,6 +105,7 @@ def _client():
     if not api_key:
         raise RuntimeError("ANTHROPIC_API_KEY が未設定です。")
     return Anthropic(api_key=api_key)
+
 
 def _extract_json(text):
     m = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.DOTALL)
