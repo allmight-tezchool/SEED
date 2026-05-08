@@ -92,10 +92,19 @@ SYSTEM_PROMPT = (
 
 
 def _client():
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if not api_key:
-        raise RuntimeError("ANTHROPIC_API_KEY が未設定です。")
-    return Anthropic(api_key=api_key)
+       # まずStreamlit Secretsを試す(本番Streamlit Cloud用)
+       api_key = None
+       try:
+           import streamlit as st
+           api_key = st.secrets.get("ANTHROPIC_API_KEY")
+       except Exception:
+           pass
+       # 次に環境変数(ローカル.env用)
+       if not api_key:
+           api_key = os.environ.get("ANTHROPIC_API_KEY")
+       if not api_key:
+           raise RuntimeError("ANTHROPIC_API_KEY が未設定です。")
+       return Anthropic(api_key=api_key)
 
 
 def _extract_json(text):
