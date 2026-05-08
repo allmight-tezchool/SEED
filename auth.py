@@ -105,17 +105,9 @@ def render_login_screen():
         return user
 
     if user and user.get("blocked"):
-        domains = get_allowed_domains()
-        emails = get_allowed_emails()
-        allowed_msg = ""
-        if domains:
-            allowed_msg += f"許可ドメイン: {', '.join('@'+d for d in domains)}\n"
-        if emails:
-            allowed_msg += f"許可アドレス: {', '.join(emails)}\n"
         st.error(
             "このメールアドレスではログインできません。\n"
-            + allowed_msg
-            + "管理者にお問い合わせください。"
+            "アクセス権限がない場合は、管理者にお問い合わせください。"
         )
         if st.button("ログアウト"):
             try:
