@@ -26,15 +26,13 @@ header[data-testid="stHeader"],
 [data-testid="stStatusWidget"],
 .stDeployButton,
 [data-testid="manage-app-button"],
+[data-testid="resizableComponent"],
 button[kind="manageAppButton"],
 [class*="viewerBadge"],
 [class*="ManageApp"],
 [class*="manage-app"],
-[class*="viewerCard"],
-[class*="StyledWrapper"],
-.viewerBadge_container__1QSob,
-.viewerBadge_link__1S137,
-.styles_terminalButton__JBj5T {
+[class*="terminalResizable"],
+[class*="streamlitStatus"] {
   display: none !important;
 }
 
