@@ -64,7 +64,10 @@ SYSTEM_PROMPT = (
     "・読み終わったあと、誰かにLINEで送りたくなる小ネタ感\n\n"
     "■ relation_story\n"
     "過去のたねと関連があれば、繋がりを2〜3文で。なければ空文字。\n"
-    "口調も軽く:「先週の◯◯のたねと、なんか裏で繋がってる感じします」みたいに。\n\n"
+    "口調も軽く:「先週の◯◯のたねと、なんか裏で繋がってる感じします」みたいに。\n"
+    "重要:本文の中で『ID 2』『ID 1』みたいな番号表記は絶対に書かない。\n"
+    "代わりに、そのたねのつぶやきの冒頭(例:『◯◯◯◯』『先日の◯◯の話』『前に蒔いた◯◯のたね』)で参照する。\n"
+    "数字や記号(ID、#1、Seed_2など)は本文には一切登場させない。\n\n"
     "■ next_seeds\n"
     "派生の問いを3つ、各15〜30字。話し言葉OK。\n"
     "良い例:「ゲームと旅行ってどこが似てる?」「『一緒にやる』が好きな自分と一人が好きな自分」\n"
@@ -127,10 +130,14 @@ def interpret_seed(tweet, recent_seeds=None):
     client = _client()
     context = ""
     if recent_seeds:
-        context = "\n\n■ 過去のたね一覧(関連があれば related_seed_id にIDを入れる)\n"
+        context = (
+            "\n\n■ 過去のたね一覧\n"
+            "・related_seed_id には数値IDを入れる(プログラム用、本文には書かない)\n"
+            "・relation_story の本文では絶対にIDで参照しない。つぶやきの言葉や時期で参照する。\n"
+        )
         for s in recent_seeds[:30]:
             excerpt = (s.get("tweet") or "")[:60]
-            context += "- ID " + str(s["id"]) + ": " + excerpt + "\n"
+            context += "- [内部ID=" + str(s["id"]) + "] つぶやき: " + excerpt + "\n"
 
     user_message = "■ 今回のつぶやき\n" + tweet + context
 
@@ -175,14 +182,23 @@ def interpret_seed(tweet, recent_seeds=None):
     except (TypeError, ValueError):
         related = None
 
+    # 念のため:本文に紛れ込んだ「ID 数字」表記を除去
+    def _clean_ids(text):
+        if not text:
+            return text
+        text = re.sub(r"(?i)\bID[\s ]*\d+[のとに、,。\s]*", "", text)
+        text = re.sub(r"#\d+[のとに、,。\s]*", "", text)
+        text = re.sub(r"\[内部ID=\d+\]", "", text)
+        return text.strip()
+
     return {
         "tree_type": tree_type,
         "size": size,
-        "keeper_message": (data.get("keeper_message") or "").strip(),
-        "knowledge": (data.get("knowledge") or "").strip(),
+        "keeper_message": _clean_ids((data.get("keeper_message") or "").strip()),
+        "knowledge": _clean_ids((data.get("knowledge") or "").strip()),
         "tags": tags_str,
         "related_seed_id": related,
-        "relation_story": (data.get("relation_story") or "").strip(),
-        "next_seeds": _safe_list(data.get("next_seeds")),
-        "forest_path": _safe_list(data.get("forest_path")),
+        "relation_story": _clean_ids((data.get("relation_story") or "").strip()),
+        "next_seeds": [_clean_ids(s) for s in _safe_list(data.get("next_seeds"))],
+        "forest_path": [_clean_ids(s) for s in _safe_list(data.get("forest_path"))],
     }
