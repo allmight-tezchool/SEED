@@ -20,7 +20,6 @@ DAILY_LIMIT = 10
 CSS = """
 <style>
 /* Streamlit Cloud のプラットフォーム要素を非表示 */
-header[data-testid="stHeader"],
 [data-testid="stToolbar"],
 [data-testid="stDecoration"],
 [data-testid="stStatusWidget"],
@@ -36,7 +35,13 @@ button[kind="manageAppButton"],
   display: none !important;
 }
 
-/* 上部余白を詰める(ヘッダー消した分) */
+/* ヘッダーは透明にする(サイドバー開閉ボタンは残したいので非表示にしない) */
+header[data-testid="stHeader"] {
+  background: transparent !important;
+  height: auto !important;
+}
+
+/* 上部余白を詰める */
 .main .block-container { padding-top: 1rem !important; }
 
 @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap');
