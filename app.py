@@ -41,6 +41,18 @@ header[data-testid="stHeader"] {
   height: auto !important;
 }
 
+/* サイドバー開閉ボタンを必ず表示 */
+[data-testid="stSidebarCollapseButton"],
+[data-testid="stSidebarCollapsedControl"],
+[data-testid="collapsedControl"],
+button[kind="header"],
+button[kind="headerNoPadding"] {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 999 !important;
+}
+
 /* 上部余白を詰める */
 .main .block-container { padding-top: 1rem !important; }
 
