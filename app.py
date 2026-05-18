@@ -12,7 +12,12 @@ from auth import render_login_screen, render_logout_button, get_current_user
 load_dotenv()
 db.init_db()
 
-st.set_page_config(page_title="SEED - 未来の森", page_icon="🌳", layout="wide")
+st.set_page_config(
+    page_title="SEED - 未来の森",
+    page_icon="🌳",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
 
 # 1日あたりのたね蒔き上限(レートリミット)
 DAILY_LIMIT = 10
@@ -41,16 +46,28 @@ header[data-testid="stHeader"] {
   height: auto !important;
 }
 
+/* サイドバー自体を必ず表示 */
+[data-testid="stSidebar"],
+section[data-testid="stSidebar"] {
+  display: block !important;
+  visibility: visible !important;
+  min-width: 244px !important;
+  transform: none !important;
+}
 /* サイドバー開閉ボタンを必ず表示 */
 [data-testid="stSidebarCollapseButton"],
 [data-testid="stSidebarCollapsedControl"],
 [data-testid="collapsedControl"],
+[data-testid="baseButton-headerNoPadding"],
 button[kind="header"],
-button[kind="headerNoPadding"] {
+button[kind="headerNoPadding"],
+[class*="SidebarNav"],
+[class*="sidebarCollapse"] {
   display: flex !important;
   visibility: visible !important;
   opacity: 1 !important;
-  z-index: 999 !important;
+  z-index: 999999 !important;
+  position: relative !important;
 }
 
 /* 上部余白を詰める */
