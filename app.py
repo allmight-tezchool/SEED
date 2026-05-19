@@ -16,7 +16,7 @@ st.set_page_config(
     page_title="SEED - 未来の森",
     page_icon="🌳",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 # 1日あたりのたね蒔き上限(レートリミット)
@@ -46,29 +46,6 @@ header[data-testid="stHeader"] {
   height: auto !important;
 }
 
-/* サイドバー自体を必ず表示 */
-[data-testid="stSidebar"],
-section[data-testid="stSidebar"] {
-  display: block !important;
-  visibility: visible !important;
-  min-width: 244px !important;
-  transform: none !important;
-}
-/* サイドバー開閉ボタンを必ず表示 */
-[data-testid="stSidebarCollapseButton"],
-[data-testid="stSidebarCollapsedControl"],
-[data-testid="collapsedControl"],
-[data-testid="baseButton-headerNoPadding"],
-button[kind="header"],
-button[kind="headerNoPadding"],
-[class*="SidebarNav"],
-[class*="sidebarCollapse"] {
-  display: flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  z-index: 999999 !important;
-  position: relative !important;
-}
 
 /* 上部余白を詰める */
 .main .block-container { padding-top: 1rem !important; }
@@ -185,12 +162,10 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ===== サイドバー: 表示モード切替 =====
-view_mode = st.sidebar.radio(
-    "🌲 見る森",
-    ["🌒 静寂の森", "🌞 ひらけた森"],
-    index=0,
-)
+# ===== 森の切替モード判定(ボタン本体は森の下に表示)=====
+if "view_mode" not in st.session_state:
+    st.session_state.view_mode = "🌒 静寂の森"
+view_mode = st.session_state.view_mode
 
 # どのデータを引いてくるか決定
 if view_mode == "🌒 静寂の森":
@@ -214,6 +189,27 @@ seeds_for_render = [
 
 forest_svg = render_forest(seeds_for_render)
 st.markdown(forest_svg, unsafe_allow_html=True)
+
+# ===== 森の下に切替ボタンを中央配置(スマホでも押しやすい)=====
+sp_l, col_view1, col_view2, sp_r = st.columns([1, 2, 2, 1])
+with col_view1:
+    if st.button(
+        "🌒 静寂の森",
+        use_container_width=True,
+        type="primary" if st.session_state.view_mode == "🌒 静寂の森" else "secondary",
+        key="view_quiet",
+    ):
+        st.session_state.view_mode = "🌒 静寂の森"
+        st.rerun()
+with col_view2:
+    if st.button(
+        "🌞 ひらけた森",
+        use_container_width=True,
+        type="primary" if st.session_state.view_mode == "🌞 ひらけた森" else "secondary",
+        key="view_open",
+    ):
+        st.session_state.view_mode = "🌞 ひらけた森"
+        st.rerun()
 
 # ===== 木をタップで詳細表示(スマホ向け大きめボタン)=====
 if seeds_for_render:
